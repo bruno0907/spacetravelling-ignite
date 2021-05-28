@@ -1,5 +1,63 @@
-.postBanner{}
+.postBanner{
+  width: 100%;  
+  
+  img{
+    width: 100%;    
+  }
+}
 
-.postHeader{}
+.postHeader{
+  padding-top: 3rem;
 
-.postBody{}
+  h1{
+    font-size: 3rem;
+    color: var(--heading);
+  }
+
+  div{
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0 4rem;
+
+    span{
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--info);
+    }
+
+    span + span{
+      margin-left: 2rem;
+    }
+
+    svg{
+      margin-right: 0.5rem;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.postBody{
+  margin-bottom: 6rem;
+
+  h2{
+    font-size: 2.2rem;
+    color: var(--heading);    
+    margin-bottom: 3rem;
+  }
+
+  p, li{
+    margin-bottom: 1.5rem;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+
+  a{
+    color: var(--highlight);  
+    
+    &:hover{
+      text-decoration: underline;
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 
 import { RichText } from 'prismic-dom';
 import Prismic from '@prismicio/client';
@@ -37,14 +38,12 @@ export default function Post({ post }: PostProps): JSX.Element {
 
   const getEstimatedReadingTime = (value: Post): any => {
     const wordsPerMinute = 200;
-    const { data } = value;
-    const { content } = data;
     const totalWordsInBody = RichText.asText(
-      content.reduce((acc, { body }) => [...acc, ...body], [])
+      value.data.content.reduce((acc, { body }) => [...acc, ...body], [])
     ).split(' ').length;
 
     const totalWordsInHeading = RichText.asText(
-      content.reduce((acc, { heading }) => {
+      value.data.content.reduce((acc, { heading }) => {
         if (heading) {
           return [...acc, ...heading.split('')];
         }
@@ -64,22 +63,29 @@ export default function Post({ post }: PostProps): JSX.Element {
       </Head>
       <main>
         {router.isFallback && <p>Carregando...</p>}
-        <div className={styles.PostBanner}>
+        <div className={styles.postBanner}>
           <img src={post.data.banner.url} alt="banner" />
         </div>
         <article className={commonStyles.content}>
-          <div className={styles.PostHeader}>
+          <header className={styles.postHeader}>
             <h1>{post.data.title}</h1>
             <div>
               <span>
+                <FiCalendar />
                 {format(new Date(post.first_publication_date), 'd MMM yyyy', {
                   locale: ptBR,
                 })}
               </span>
-              <span>{post.data.author}</span>
-              <span>{estimatedReadingTime} min</span>
+              <span>
+                <FiUser />
+                {post.data.author}
+              </span>
+              <span>
+                <FiClock />
+                {estimatedReadingTime} min
+              </span>
             </div>
-          </div>
+          </header>
           <div className={styles.postBody}>
             {post.data.content.map(content => (
               <div key={content.heading}>
