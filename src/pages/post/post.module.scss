@@ -15,26 +15,39 @@
   }
 
   div{
-    display: flex;
-    align-items: center;
-    margin: 1.5rem 0 4rem;
+    margin: 1.5rem 0 4rem;    
 
-    span{
+    div{
       display: flex;
       align-items: center;
+      margin: initial;
+      margin-bottom: 1rem;
+      
+      span{
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        color: var(--info);        
+        font-style: initial;        
+      }      
+  
+      span + span{
+        margin-left: 2rem;
+      }
+  
+      svg{
+        margin-right: 0.5rem;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    span{      
+      font-style: italic;
       font-size: 0.9rem;
-      color: var(--info);
+      color: var(--info);      
     }
 
-    span + span{
-      margin-left: 2rem;
-    }
-
-    svg{
-      margin-right: 0.5rem;
-      width: 20px;
-      height: 20px;
-    }
   }
 }
 
@@ -55,9 +68,53 @@
 
   a{
     color: var(--highlight);  
+    font-weight: 700;
     
     &:hover{
       text-decoration: underline;
+    }
+  }
+}
+
+.postFooter{
+  margin-bottom: 6rem;
+
+  hr{        
+    margin: 0;
+    height: 0px;
+    border: none;
+    border-top: solid 1px var(--body);
+    opacity: 0.25;
+    margin-bottom: 3rem;
+  }
+
+  nav{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;    
+    
+    div{
+      display: flex;
+      flex-direction: column; 
+      text-align: end;
+      
+      a{
+        color: var(--highlight);
+        font-weight: 700;  
+      }
+      
+      span{
+        display: block;
+        color: var(--heading);
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+      }  
+    }
+
+    .hasPrevious{
+      text-align: start;
+      margin-right: auto;
     }
   }
 }

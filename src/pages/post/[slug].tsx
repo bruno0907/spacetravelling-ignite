@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
@@ -14,6 +15,7 @@ import styles from './post.module.scss';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -29,14 +31,30 @@ interface Post {
   };
 }
 
+interface Navigation {
+  slug: string;
+  title: string;
+}
 interface PostProps {
   post: Post;
+  navigation: Navigation[];
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, navigation }: PostProps): JSX.Element {
   const router = useRouter();
 
-  const getEstimatedReadingTime = (value: Post): any => {
+  if (router.isFallback) {
+    return <h1>Carregando...</h1>;
+  }
+
+  const navOptions = navigation.findIndex(
+    option => option.title === post.data.title
+  );
+
+  const previousPost = navigation[navOptions - 1];
+  const nextPost = navigation[navOptions + 1];
+
+  const getEstimatedReadingTime = (value: Post): number => {
     const wordsPerMinute = 200;
     const totalWordsInBody = RichText.asText(
       value.data.content.reduce((acc, { body }) => [...acc, ...body], [])
@@ -62,27 +80,38 @@ export default function Post({ post }: PostProps): JSX.Element {
         <title>{post.data.title} | spacetravelling.</title>
       </Head>
       <main>
-        {router.isFallback && <p>Carregando...</p>}
-        <div className={styles.postBanner}>
+        <header className={styles.postBanner}>
           <img src={post.data.banner.url} alt="banner" />
-        </div>
+        </header>
         <article className={commonStyles.content}>
           <header className={styles.postHeader}>
             <h1>{post.data.title}</h1>
             <div>
+              <div>
+                <span>
+                  <FiCalendar />
+                  {format(new Date(post.first_publication_date), 'd MMM yyyy', {
+                    locale: ptBR,
+                  })}
+                </span>
+                <span>
+                  <FiUser />
+                  {post.data.author}
+                </span>
+                <span>
+                  <FiClock />
+                  {estimatedReadingTime} min
+                </span>
+              </div>
               <span>
-                <FiCalendar />
-                {format(new Date(post.first_publication_date), 'd MMM yyyy', {
-                  locale: ptBR,
-                })}
-              </span>
-              <span>
-                <FiUser />
-                {post.data.author}
-              </span>
-              <span>
-                <FiClock />
-                {estimatedReadingTime} min
+                {post.last_publication_date &&
+                  format(
+                    new Date(post.last_publication_date),
+                    "'*editado 'd MMM yyyy' às 'p'",
+                    {
+                      locale: ptBR,
+                    }
+                  )}
               </span>
             </div>
           </header>
@@ -99,6 +128,27 @@ export default function Post({ post }: PostProps): JSX.Element {
               </div>
             ))}
           </div>
+          <footer className={styles.postFooter}>
+            <hr />
+            <nav>
+              {previousPost && (
+                <div className={previousPost && styles.hasPrevious}>
+                  <span>{previousPost?.title}</span>
+                  <Link href={`/post/${previousPost?.slug}`}>
+                    <a>Post anterior</a>
+                  </Link>
+                </div>
+              )}
+              {nextPost && (
+                <div>
+                  <span>{nextPost?.title}</span>
+                  <Link href={`/post/${nextPost?.slug}`}>
+                    <a>Próximo post</a>
+                  </Link>
+                </div>
+              )}
+            </nav>
+          </footer>
         </article>
       </main>
     </>
@@ -125,14 +175,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params;
+export const getStaticProps: GetStaticProps = async context => {
+  const { slug } = context.params;
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('posts', String(slug), {});
-
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -140,16 +190,33 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       banner: {
         url: response.data.banner.url,
       },
-      content: response?.data.content.map(i => {
+      content: response.data.content.map(content => {
         return {
-          heading: i.heading,
-          body: i.body,
+          heading: content.heading,
+          body: content.body,
         };
       }),
     },
   };
 
+  const posts = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      fetch: ['posts.title'],
+    }
+  );
+
+  const navigation = posts.results.map(result => {
+    return {
+      slug: result.uid,
+      title: result.data.title,
+    };
+  });
+
   return {
-    props: { post },
+    props: {
+      post,
+      navigation,
+    },
   };
 };
