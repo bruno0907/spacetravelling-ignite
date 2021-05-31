@@ -204,49 +204,60 @@ export const getStaticProps: GetStaticProps = async ({
 }) => {
   const { slug } = params;
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('posts', String(slug), {
-    ref: previewData?.ref ?? null,
-  });
-  const post = {
-    uid: response?.uid ?? null,
-    first_publication_date: response?.first_publication_date ?? null,
-    last_publication_date: response?.last_publication_date ?? null,
-    data: {
-      title: response.data.title,
-      subtitle: response.data.subtitle,
-      author: response.data.author,
-      banner: {
-        url: response.data.banner.url,
-      },
-      content: response.data.content.map(content => {
-        return {
-          heading: content.heading,
-          body: content.body,
-        };
-      }),
-    },
-  };
 
-  const posts = await prismic.query(
-    [Prismic.Predicates.at('document.type', 'posts')],
-    {
-      fetch: ['posts.title'],
+  try {
+    const response = await prismic.getByUID('posts', String(slug), {
       ref: previewData?.ref ?? null,
-    }
-  );
+    });
 
-  const navigation = posts.results.map(result => {
-    return {
-      slug: result.uid,
-      title: result.data.title,
+    const post = {
+      uid: response?.uid ?? null,
+      first_publication_date: response?.first_publication_date ?? null,
+      last_publication_date: response?.last_publication_date ?? null,
+      data: {
+        title: response?.data.title ?? null,
+        subtitle: response?.data.subtitle ?? null,
+        author: response?.data.author ?? null,
+        banner: {
+          url: response?.data.banner.url ?? null,
+        },
+        content:
+          response?.data.content.map(content => {
+            return {
+              heading: content.heading,
+              body: content.body,
+            };
+          }) ?? [],
+      },
     };
-  });
+
+    const posts = await prismic.query(
+      [Prismic.Predicates.at('document.type', 'posts')],
+      {
+        fetch: ['posts.title'],
+        ref: previewData?.ref ?? null,
+      }
+    );
+
+    const navigation = posts.results.map(result => {
+      return {
+        slug: result.uid,
+        title: result.data.title,
+      };
+    });
+
+    return {
+      props: {
+        post,
+        navigation,
+        preview,
+      },
+    };
+  } catch (error) {
+    console.log(error.message);
+  }
 
   return {
-    props: {
-      post,
-      navigation,
-      preview,
-    },
+    props: {},
   };
 };
