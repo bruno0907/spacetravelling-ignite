@@ -96,6 +96,7 @@
     justify-content: flex-end;    
     
     div{
+      width: 250px;
       display: flex;
       flex-direction: column; 
       text-align: end;
@@ -112,6 +113,10 @@
         font-weight: 400;
         margin-bottom: 0.5rem;
       }  
+    }
+
+    & div + div { 
+      margin-left: 2rem;       
     }
 
     .hasPrevious{

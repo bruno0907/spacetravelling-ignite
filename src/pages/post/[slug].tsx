@@ -170,7 +170,7 @@ export default function Post({
                 )}
               </nav>
             )}
-            <Comments />
+            <Comments post={post} />
           </footer>
         </article>
       </main>
