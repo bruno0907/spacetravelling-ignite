@@ -30,9 +30,13 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
+  preview: boolean;
 }
 
-export default function Home({ postsPagination }: HomeProps): JSX.Element {
+export default function Home({
+  postsPagination,
+  preview,
+}: HomeProps): JSX.Element {
   const [nextLink, setNextLink] = useState(postsPagination.next_page);
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
 
@@ -69,18 +73,20 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
                   <h1>{post.data.title}</h1>
                   <p>{post.data.subtitle}</p>
                   <footer>
-                    <span>
-                      <FiCalendar />
-                      <time className={styles.publicationDate}>
-                        {format(
-                          new Date(post.first_publication_date),
-                          `d MMM y`,
-                          {
-                            locale: ptBR,
-                          }
-                        )}
-                      </time>
-                    </span>
+                    {post.first_publication_date && (
+                      <span>
+                        <FiCalendar />
+                        <time className={styles.publicationDate}>
+                          {format(
+                            new Date(post.first_publication_date),
+                            `d MMM y`,
+                            {
+                              locale: ptBR,
+                            }
+                          )}
+                        </time>
+                      </span>
+                    )}
                     <span>
                       <FiUser />
                       {post.data.author}
@@ -91,9 +97,20 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             </Link>
           ))}
           {nextLink && (
-            <button type="button" onClick={() => loadMorePosts(nextLink)}>
+            <button
+              type="button"
+              className={styles.loadMorePostsButton}
+              onClick={() => loadMorePosts(nextLink)}
+            >
               Carregar mais posts
             </button>
+          )}
+          {preview && (
+            <aside className={commonStyles.previewButton}>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo de Preview</a>
+              </Link>
+            </aside>
           )}
         </main>
       </div>
@@ -101,11 +118,18 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps<HomeProps> = async ({
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     [Prismic.Predicates.at('document.type', 'posts')],
-    { fetch: ['posts.title', 'posts.subtitle', 'posts.author'], pageSize: 2 }
+    {
+      fetch: ['posts.title', 'posts.subtitle', 'posts.author'],
+      pageSize: 2,
+      ref: previewData?.ref ?? null,
+    }
   );
   const postsPagination = {
     next_page: postsResponse.next_page,
@@ -119,6 +143,9 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 
   return {
-    props: { postsPagination },
+    props: {
+      postsPagination,
+      preview,
+    },
   };
 };

@@ -38,9 +38,14 @@ interface Navigation {
 interface PostProps {
   post: Post;
   navigation: Navigation[];
+  preview: boolean;
 }
 
-export default function Post({ post, navigation }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  navigation,
+  preview,
+}: PostProps): JSX.Element {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -74,7 +79,9 @@ export default function Post({ post, navigation }: PostProps): JSX.Element {
 
   const estimatedReadingTime = getEstimatedReadingTime(post);
 
-  return (
+  return router.isFallback ? (
+    <h1>Carregando...</h1>
+  ) : (
     <>
       <Head>
         <title>{post.data.title} | spacetravelling.</title>
@@ -88,12 +95,18 @@ export default function Post({ post, navigation }: PostProps): JSX.Element {
             <h1>{post.data.title}</h1>
             <div>
               <div>
-                <span>
-                  <FiCalendar />
-                  {format(new Date(post.first_publication_date), 'd MMM yyyy', {
-                    locale: ptBR,
-                  })}
-                </span>
+                {post.first_publication_date && (
+                  <span>
+                    <FiCalendar />
+                    {format(
+                      new Date(post.first_publication_date),
+                      'd MMM yyyy',
+                      {
+                        locale: ptBR,
+                      }
+                    )}
+                  </span>
+                )}
                 <span>
                   <FiUser />
                   {post.data.author}
@@ -130,24 +143,32 @@ export default function Post({ post, navigation }: PostProps): JSX.Element {
           </div>
           <footer className={styles.postFooter}>
             <hr />
-            <nav>
-              {previousPost && (
-                <div className={previousPost && styles.hasPrevious}>
-                  <span>{previousPost?.title}</span>
-                  <Link href={`/post/${previousPost?.slug}`}>
-                    <a>Post anterior</a>
-                  </Link>
-                </div>
-              )}
-              {nextPost && (
-                <div>
-                  <span>{nextPost?.title}</span>
-                  <Link href={`/post/${nextPost?.slug}`}>
-                    <a>Próximo post</a>
-                  </Link>
-                </div>
-              )}
-            </nav>
+            {preview ? (
+              <aside className={commonStyles.previewButton}>
+                <Link href="/api/exit-preview">
+                  <a>Sair do modo de Preview</a>
+                </Link>
+              </aside>
+            ) : (
+              <nav>
+                {previousPost && (
+                  <div className={previousPost && styles.hasPrevious}>
+                    <span>{previousPost?.title}</span>
+                    <Link href={`/post/${previousPost?.slug}`}>
+                      <a>Post anterior</a>
+                    </Link>
+                  </div>
+                )}
+                {nextPost && (
+                  <div>
+                    <span>{nextPost?.title}</span>
+                    <Link href={`/post/${nextPost?.slug}`}>
+                      <a>Próximo post</a>
+                    </Link>
+                  </div>
+                )}
+              </nav>
+            )}
           </footer>
         </article>
       </main>
@@ -175,14 +196,20 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async context => {
-  const { slug } = context.params;
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  previewData,
+  preview = false,
+}) => {
+  const { slug } = params;
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('posts', String(slug), {});
+  const response = await prismic.getByUID('posts', String(slug), {
+    ref: previewData?.ref ?? null,
+  });
   const post = {
-    uid: response.uid,
-    first_publication_date: response.first_publication_date,
-    last_publication_date: response.last_publication_date,
+    uid: response?.uid ?? null,
+    first_publication_date: response?.first_publication_date ?? null,
+    last_publication_date: response?.last_publication_date ?? null,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -203,6 +230,7 @@ export const getStaticProps: GetStaticProps = async context => {
     [Prismic.Predicates.at('document.type', 'posts')],
     {
       fetch: ['posts.title'],
+      ref: previewData?.ref ?? null,
     }
   );
 
@@ -217,6 +245,7 @@ export const getStaticProps: GetStaticProps = async context => {
     props: {
       post,
       navigation,
+      preview,
     },
   };
 };

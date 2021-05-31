@@ -2,16 +2,6 @@
   margin: 0 auto;
   max-width: 760px;  
   padding: 2rem 0;
-
-  button{
-    border: none;
-    background-color: transparent;
-    color: var(--highlight);
-    font-size: 1.1rem;
-    font-weight: 700;    
-
-    &:hover{ text-decoration: underline; }
-  }
 }
 
 .posts{
@@ -58,4 +48,17 @@
 
 .publicationDate{
   text-transform: capitalize;
+}
+
+.loadMorePostsButton{  
+  border: none;
+  background-color: transparent;
+  color: var(--highlight);
+  font-size: 1.1rem;
+  font-weight: 700;    
+  margin-bottom: 6rem;  
+
+  &:hover{ 
+    text-decoration: underline;    
+  }  
 }
