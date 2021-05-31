@@ -1,18 +1,8 @@
-import { roundToNearestMinutesWithOptions } from 'date-fns/fp';
 import { useEffect, useRef } from 'react';
 
 import styles from './styles.module.scss';
 
-interface Post {
-  data: {
-    title: string;
-  };
-}
-interface PostProps {
-  post: Post;
-}
-
-function Comments({ post }: PostProps): JSX.Element {
+function Comments(): JSX.Element {
   const commentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,7 +21,7 @@ function Comments({ post }: PostProps): JSX.Element {
     return () => {
       comment.removeChild(comment.firstElementChild);
     };
-  }, [post.data.title]);
+  });
 
   return <div className={styles.comments} ref={commentRef} />;
 }
