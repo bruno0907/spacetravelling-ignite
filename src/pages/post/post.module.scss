@@ -7,7 +7,7 @@
 }
 
 .postHeader{
-  padding-top: 3rem;
+  padding: 3rem 2rem 0;
 
   h1{
     font-size: 3rem;
@@ -53,6 +53,7 @@
 
 .postBody{
   margin-bottom: 6rem;
+  padding: 0 2rem;
 
   h2{
     font-size: 2.2rem;
@@ -77,7 +78,8 @@
 }
 
 .postFooter{
-  margin-bottom: 6rem;
+  margin-bottom: 6rem;  
+  padding: 0 2rem;
 
   hr{        
     margin: 0;
