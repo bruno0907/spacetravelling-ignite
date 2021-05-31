@@ -3,16 +3,19 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+// import { format } from 'date-fns';
+// import { ptBR } from 'date-fns/locale';
 
-import { FiUser, FiCalendar } from 'react-icons/fi';
+// import { FiUser, FiCalendar } from 'react-icons/fi';
 
 import Prismic from '@prismicio/client';
 import { getPrismicClient } from '../services/prismic';
 
+import { PostLink } from '../components/PostLink';
+
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { PreviewModeButton } from '../components/PreviewModeButton';
 
 interface Post {
   uid?: string;
@@ -65,37 +68,11 @@ export default function Home({
       </Head>
       <div className={commonStyles.container}>
         <main className={styles.homeContent}>
-          {!posts && <p>Carregando...</p>}
-          {posts.map((post: Post) => (
-            <Link href={`/post/${post.uid}`} key={post.uid}>
-              <a>
-                <article className={styles.posts}>
-                  <h1>{post.data.title}</h1>
-                  <p>{post.data.subtitle}</p>
-                  <footer>
-                    {post.first_publication_date && (
-                      <span>
-                        <FiCalendar />
-                        <time className={styles.publicationDate}>
-                          {format(
-                            new Date(post.first_publication_date),
-                            `d MMM y`,
-                            {
-                              locale: ptBR,
-                            }
-                          )}
-                        </time>
-                      </span>
-                    )}
-                    <span>
-                      <FiUser />
-                      {post.data.author}
-                    </span>
-                  </footer>
-                </article>
-              </a>
-            </Link>
-          ))}
+          {!posts ? (
+            <p>Carregando...</p>
+          ) : (
+            posts.map((post: Post) => <PostLink key={post.uid} post={post} />)
+          )}
           {nextLink && (
             <button
               type="button"
@@ -105,13 +82,7 @@ export default function Home({
               Carregar mais posts
             </button>
           )}
-          {preview && (
-            <aside className={commonStyles.previewButton}>
-              <Link href="/api/exit-preview">
-                <a>Sair do modo de Preview</a>
-              </Link>
-            </aside>
-          )}
+          {preview && <PreviewModeButton />}
         </main>
       </div>
     </>

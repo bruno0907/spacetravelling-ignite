@@ -13,6 +13,7 @@ import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 import { Comments } from '../../components/Comments';
+import { PreviewModeButton } from '../../components/PreviewModeButton';
 
 interface Post {
   first_publication_date: string | null;
@@ -145,32 +146,30 @@ export default function Post({
           <footer className={styles.postFooter}>
             <hr />
             {preview ? (
-              <aside className={commonStyles.previewButton}>
-                <Link href="/api/exit-preview">
-                  <a>Sair do modo de Preview</a>
-                </Link>
-              </aside>
+              <PreviewModeButton />
             ) : (
-              <nav>
-                {previousPost && (
-                  <div className={previousPost && styles.hasPrevious}>
-                    <span>{previousPost?.title}</span>
-                    <Link href={`/post/${previousPost?.slug}`}>
-                      <a>Post anterior</a>
-                    </Link>
-                  </div>
-                )}
-                {nextPost && (
-                  <div>
-                    <span>{nextPost?.title}</span>
-                    <Link href={`/post/${nextPost?.slug}`}>
-                      <a>Próximo post</a>
-                    </Link>
-                  </div>
-                )}
-              </nav>
+              <>
+                <nav>
+                  {previousPost && (
+                    <div className={previousPost && styles.hasPrevious}>
+                      <span>{previousPost?.title}</span>
+                      <Link href={`/post/${previousPost?.slug}`}>
+                        <a>Post anterior</a>
+                      </Link>
+                    </div>
+                  )}
+                  {nextPost && (
+                    <div>
+                      <span>{nextPost?.title}</span>
+                      <Link href={`/post/${nextPost?.slug}`}>
+                        <a>Próximo post</a>
+                      </Link>
+                    </div>
+                  )}
+                </nav>
+                <Comments post={post} />
+              </>
             )}
-            <Comments post={post} />
           </footer>
         </article>
       </main>
