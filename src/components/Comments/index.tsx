@@ -2,7 +2,29 @@ import { useEffect, useRef } from 'react';
 
 import styles from './styles.module.scss';
 
-function Comments(): JSX.Element {
+type Post = {
+  first_publication_date: string | null;
+  last_publication_date: string | null;
+  data: {
+    title: string;
+    banner: {
+      url: string;
+    };
+    author: string;
+    content: {
+      heading: string;
+      body: {
+        text: string;
+      }[];
+    }[];
+  };
+};
+
+interface Props {
+  post?: Post;
+}
+
+function Comments({ post }: Props): JSX.Element {
   const commentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
