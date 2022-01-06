@@ -167,7 +167,7 @@ export default function Post({
                     </div>
                   )}
                 </nav>
-                <Comments post={post} />
+                <Comments />
               </>
             )}
           </footer>

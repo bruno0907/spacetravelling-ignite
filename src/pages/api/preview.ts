@@ -8,7 +8,7 @@ export default async (
 ): Promise<void> => {
   const { token: ref, documentId } = req.query;
   const redirectUrl = await getPrismicClient(req)
-    .getPreviewResolver(String(ref), String(documentId))
+    .getPreviewResolver(`${ref}`, `${documentId}`)
     .resolve(linkResolver, '/');
 
   if (!redirectUrl) {
